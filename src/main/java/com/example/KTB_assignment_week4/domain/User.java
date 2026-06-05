@@ -1,4 +1,4 @@
-package com.example.KTB_assignment_week4.Domain;
+package com.example.KTB_assignment_week4.domain;
 
 public class User {
     Long userId;        //사용자 식별용 id값, UUID 사용
