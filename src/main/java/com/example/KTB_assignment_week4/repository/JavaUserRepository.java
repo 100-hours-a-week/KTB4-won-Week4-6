@@ -18,25 +18,29 @@ public class JavaUserRepository implements UserRepository{
                 "apple@naver.com",
                 "ilikeapple",
                 UserRole.USER,
-                false));
+                false,
+                ""));
         userData.add(new User(2L,
                 "바나나",
                 "banana@naver.com",
                 "ilikebanana",
                 UserRole.USER,
-                false));
+                false,
+                ""));
         userData.add(new User(3L,
                 "키위",
                 "kiwi@naver.com",
                 "ilikekiwi",
                 UserRole.USER,
-                false));
+                false,
+                ""));
         userData.add(new User(4L,
                 "망고",
                 "mango@naver.com",
                 "ilikemango",
                 UserRole.USER,
-                false));
+                false,
+                ""));
     }
 
     public JavaUserRepository(){

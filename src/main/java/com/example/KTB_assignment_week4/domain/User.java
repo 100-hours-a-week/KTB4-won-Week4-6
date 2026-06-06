@@ -16,4 +16,5 @@ public class User {
     String passWord;    //비밀번호(일단 평문으로 저장)
     UserRole userRole;  //사용자 권한 구분(사용자, 어드민)
     Boolean isDeleted;  //사용자 탈퇴 여부(소프트 delete)
+    String profileImage; //프로필 이미지
 }
