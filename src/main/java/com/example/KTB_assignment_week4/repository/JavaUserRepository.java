@@ -8,7 +8,7 @@ import java.util.*;
 
 @Component
 public class JavaUserRepository implements UserRepository{
-    private List<User> userData = new ArrayList<>();
+    private final List<User> userData = new ArrayList<>();
 
     public void initiateUserData (){    //사용자 데이터 하드코딩
         userData.add(new User(1L,
@@ -87,5 +87,12 @@ public class JavaUserRepository implements UserRepository{
         Optional<User> modifyTargetUser = findByUserId(userId);
         int indexOfFoundUser = userData.indexOf(modifyTargetUser.orElseThrow(NoSuchElementException::new));
         userData.set(indexOfFoundUser, modifiedUser);
+    }
+
+    @Override
+    public void modifyUserPassword(Long userId, User passwordModifiedUser) {
+        Optional<User> passwordModifyTargetUser = findByUserId(userId);
+        int indexOfFoundUser = userData.indexOf(passwordModifyTargetUser.orElseThrow(NoSuchElementException::new));
+        userData.set(indexOfFoundUser, passwordModifiedUser);
     }
 }

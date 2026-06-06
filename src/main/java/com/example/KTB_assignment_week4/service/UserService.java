@@ -2,10 +2,7 @@ package com.example.KTB_assignment_week4.service;
 
 import com.example.KTB_assignment_week4.domain.User;
 import com.example.KTB_assignment_week4.domain.UserRole;
-import com.example.KTB_assignment_week4.dto.UserInfoModifyRequest;
-import com.example.KTB_assignment_week4.dto.UserInfoResponse;
-import com.example.KTB_assignment_week4.dto.UserLoginRequest;
-import com.example.KTB_assignment_week4.dto.UserSignupRequest;
+import com.example.KTB_assignment_week4.dto.*;
 import com.example.KTB_assignment_week4.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
@@ -16,7 +13,7 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    public final UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository){
         this.userRepository = userRepository;
@@ -90,5 +87,15 @@ public class UserService {
         modifyTargetUser.setProfileImage(newProfileImage);
 
         userRepository.modifyUserInfo(userId, modifyTargetUser);
+    }
+
+    public void modifyUserPassword(Long userId, UserPasswordModifyRequest userPasswordModifyRequest){
+        String modifiedPassword = userPasswordModifyRequest.getPassword();
+
+        Optional<User> optionalPasswordModifyTargetUser = userRepository.findByUserId(userId);
+        User passwordModifyTargetUser = optionalPasswordModifyTargetUser.orElseThrow(NoSuchElementException::new);
+        passwordModifyTargetUser.setPassWord(modifiedPassword);
+
+        userRepository.modifyUserPassword(userId, passwordModifyTargetUser);
     }
 }
