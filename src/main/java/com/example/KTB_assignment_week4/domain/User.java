@@ -1,5 +1,6 @@
 package com.example.KTB_assignment_week4.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -7,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
     Long userId;        //사용자 식별용 id값, UUID 사용
     String nickname;    //닉네임
