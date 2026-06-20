@@ -6,14 +6,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class UserInfoResponse {
-    private final String email;
+public class UserInfoModifyResponse {
     private final String nickname;
     private final String profileImage;
 
-    public static UserInfoResponse from(User user){
-        return new UserInfoResponse(user.getEmail(),
-                user.getNickname(),
-                user.getProfileImage());
+    public static UserInfoModifyResponse from(User user){
+        return new UserInfoModifyResponse(user.getNickname(), user.getProfileImage());
     }
 }

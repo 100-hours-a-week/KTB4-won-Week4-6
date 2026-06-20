@@ -1,15 +1,16 @@
 package com.example.KTB_assignment_week4.dto.userDTO.Request;
 
+import com.example.KTB_assignment_week4.exception.userErrorMessage.UserErrorMessage;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @NoArgsConstructor
 public class UserInfoModifyRequest {
-    @NotBlank
-    String nickname;
-    String profileImage;
+    @NotBlank(message = UserErrorMessage.NICKNAME_REQUIRED)
+    @Size(min = 2, max = 10, message = UserErrorMessage.NICKNAME_LENGTH_LIMIT)
+    private String nickname;
+    private String profileImage;
 }

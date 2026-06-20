@@ -13,7 +13,7 @@ public class UserLoginResponse {
     private final String email;
     private final UserRole userRole;
 
-    public static UserLoginResponse of(User user){
+    public static UserLoginResponse from(User user){
         return new UserLoginResponse(user.getUserId(),
                 user.getNickname(),
                 user.getEmail(),

@@ -2,8 +2,8 @@ package com.example.KTB_assignment_week4.handler;
 
 import com.example.KTB_assignment_week4.dto.errorDTO.ErrorResponse;
 import com.example.KTB_assignment_week4.exception.BusinessException;
-import com.example.KTB_assignment_week4.exception.LoginFailedException;
 import com.example.KTB_assignment_week4.exception.NotFoundException;
+import com.example.KTB_assignment_week4.exception.UnauthorizedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,8 +27,8 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(exception.getCode()));
     }
 
-    @ExceptionHandler(LoginFailedException.class)
-    public ResponseEntity<ErrorResponse> handleLoginFailed(LoginFailedException exception) {
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleLoginFailed(UnauthorizedException exception) {
 
         return ResponseEntity
                 .status(exception.getHttpStatus())
