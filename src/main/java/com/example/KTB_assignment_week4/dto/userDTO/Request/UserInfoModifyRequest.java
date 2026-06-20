@@ -1,4 +1,4 @@
-package com.example.KTB_assignment_week4.dto.userDTO;
+package com.example.KTB_assignment_week4.dto.userDTO.Request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -8,9 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserInfoResponse {
-    @NotBlank
-    String email;
+public class UserInfoModifyRequest {
     @NotBlank
     String nickname;
     String profileImage;

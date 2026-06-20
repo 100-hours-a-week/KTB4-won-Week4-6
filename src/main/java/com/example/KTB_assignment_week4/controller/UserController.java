@@ -1,8 +1,15 @@
 package com.example.KTB_assignment_week4.controller;
 
-import com.example.KTB_assignment_week4.dto.userDTO.*;
+import com.example.KTB_assignment_week4.dto.userDTO.Request.UserInfoModifyRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.Request.UserLoginRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.Request.UserPasswordModifyRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.Request.UserSignupRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.Response.UserInfoResponse;
+import com.example.KTB_assignment_week4.dto.userDTO.Response.UserLoginResponse;
+import com.example.KTB_assignment_week4.response.ApiResponse;
 import com.example.KTB_assignment_week4.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,9 +22,11 @@ public class UserController {
     }
 
     @PostMapping("/login")  //로그인 메소드
-    public String userLogin(@Valid @RequestBody UserLoginRequest userLoginRequest){
-        String response = userService.login(userLoginRequest);
-        return response;
+    public ResponseEntity<ApiResponse<UserLoginResponse>> userLogin(@Valid @RequestBody UserLoginRequest userLoginRequest){
+        UserLoginResponse response = userService.login(userLoginRequest);
+        return ResponseEntity.ok(
+                ApiResponse.of("USER_LOGIN", response)
+                );
     }
 
     @PostMapping("/signup") //회원가입 메소드

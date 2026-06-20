@@ -2,7 +2,14 @@ package com.example.KTB_assignment_week4.service;
 
 import com.example.KTB_assignment_week4.domain.User;
 import com.example.KTB_assignment_week4.domain.UserRole;
-import com.example.KTB_assignment_week4.dto.userDTO.*;
+import com.example.KTB_assignment_week4.dto.userDTO.Request.UserInfoModifyRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.Request.UserLoginRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.Request.UserPasswordModifyRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.Request.UserSignupRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.Response.UserInfoResponse;
+import com.example.KTB_assignment_week4.dto.userDTO.Response.UserLoginResponse;
+import com.example.KTB_assignment_week4.exception.LoginFailedException;
+import com.example.KTB_assignment_week4.exception.NotFoundException;
 import com.example.KTB_assignment_week4.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
@@ -19,21 +26,18 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public String login(@Valid UserLoginRequest userLoginRequest) throws IllegalArgumentException{
+    public UserLoginResponse login(@Valid UserLoginRequest userLoginRequest){
         String email = userLoginRequest.getEmail();
         String password = userLoginRequest.getPassword();
 
-        Optional<User> userFindByEmail = userRepository.findByEmail(email); //하드코딩된 값이지만 DB 호출을 할 경우 null값이 있을 수 있으므로 Optional로 처리
-
-        String passwordOfFindUser = userFindByEmail.orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 사용자입니다"))
-                .getPassWord();
-        if(passwordOfFindUser.equals(password)){
-            return "로그인 성공";
+        Optional<User> optionalUserFoundByEmail = userRepository.findByEmail(email);
+        User userFoundByEmail = optionalUserFoundByEmail.orElseThrow(
+                () -> new NotFoundException("존재하지 않는 사용자입니다."));
+        String passwordOfFoundUser = userFoundByEmail.getPassWord();
+        if(!passwordOfFoundUser.equals(password)){
+            throw new LoginFailedException();
         }
-        else{
-            return "로그인 실패";
-        }
+        return UserLoginResponse.of(userFoundByEmail);
     }
 
     public void checkEmailDuplication(String email){        //이메일 중복체크 => 중복 시 예외처리
