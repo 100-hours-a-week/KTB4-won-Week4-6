@@ -2,15 +2,12 @@ package com.example.KTB_assignment_week4.service;
 
 import com.example.KTB_assignment_week4.domain.User;
 import com.example.KTB_assignment_week4.domain.UserRole;
-import com.example.KTB_assignment_week4.dto.userDTO.Request.UserInfoModifyRequest;
-import com.example.KTB_assignment_week4.dto.userDTO.Request.UserLoginRequest;
-import com.example.KTB_assignment_week4.dto.userDTO.Request.UserPasswordModifyRequest;
-import com.example.KTB_assignment_week4.dto.userDTO.Request.UserSignupRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.Request.*;
 import com.example.KTB_assignment_week4.dto.userDTO.Response.UserInfoModifyResponse;
 import com.example.KTB_assignment_week4.dto.userDTO.Response.UserInfoResponse;
 import com.example.KTB_assignment_week4.dto.userDTO.Response.UserLoginResponse;
 import com.example.KTB_assignment_week4.dto.userDTO.Response.UserSignupResponse;
-import com.example.KTB_assignment_week4.exception.BusinessException;
+import com.example.KTB_assignment_week4.exception.BadRequestException;
 import com.example.KTB_assignment_week4.exception.ConflictException;
 import com.example.KTB_assignment_week4.exception.NotFoundException;
 import com.example.KTB_assignment_week4.exception.UnauthorizedException;
@@ -18,30 +15,29 @@ import com.example.KTB_assignment_week4.exception.userErrorMessage.UserErrorMess
 import com.example.KTB_assignment_week4.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository){
-        this.userRepository = userRepository;
-    }
 
     public UserLoginResponse login(@Valid UserLoginRequest userLoginRequest, HttpSession session){
         String email = userLoginRequest.getEmail();
         String password = userLoginRequest.getPassword();
 
-        if(password.length() < 2 || password.length() > 10){
-            throw new BusinessException(UserErrorMessage.PASSWORD_LENGTH_LIMIT, HttpStatus.BAD_REQUEST);
+        if((password.length() < 8) || (password.length() > 20)){
+            throw new BadRequestException(UserErrorMessage.PASSWORD_LENGTH_LIMIT);
         }
 
-        Optional<User> optionalUserFoundByEmail = userRepository.findByEmail(email);
+        Optional<User> optionalUserFoundByEmail = userRepository.findByEmailAndIsDeletedFalse(email);
         User userFoundByEmail = optionalUserFoundByEmail.orElseThrow(
                 () -> new NotFoundException(UserErrorMessage.USER_NOT_FOUND));
         String passwordOfFoundUser = userFoundByEmail.getPassword();
@@ -59,30 +55,31 @@ public class UserService {
     }
 
     public void checkEmailDuplication(String email){        //이메일 중복체크 => 중복 시 예외처리
-        if(userRepository.existsByEmail(email)){
+        if(userRepository.existsByEmailAndIsDeletedFalse(email)){
             throw new ConflictException(UserErrorMessage.EMAIL_ALREADY_EXISTS);
         };
     }
 
     public void checkNicknameDuplication(String nickname){  //닉네임 중복체크 => 중복 시 예외처리
-        if(userRepository.existsByNickname(nickname)){
+        if(userRepository.existsByNicknameAndIsDeletedFalse(nickname)){
             throw new ConflictException(UserErrorMessage.NICKNAME_ALREADY_EXISTS);
         }
     }
 
+    @Transactional
     public UserSignupResponse signup(@Valid UserSignupRequest userSignupRequest){
-        Long userId = userSignupRequest.getUserId();
         String email = userSignupRequest.getEmail();
         String password = userSignupRequest.getPassword();
         String nickname = userSignupRequest.getNickname();
         String profileImage = userSignupRequest.getProfileImage();
 
         checkEmailDuplication(email);
-        checkNicknameDuplication(nickname);  //이메일과 닉네임 중복 체크 후 중복된다면 예외 발생 => 예외 발생된다는 것을 코드만 보고 알기 어려운데 괜찮을까?
+        checkNicknameDuplication(nickname);  //이메일과 닉네임 중복 체크 후 중복된다면 예외 발생
 
-        User user = new User(userId, nickname, email, password, UserRole.USER, false, profileImage);
 
-        userRepository.saveUser(user);
+        User user = new User(nickname, email, password, UserRole.USER, profileImage);
+
+        userRepository.save(user);
 
         return UserSignupResponse.from(user);
     }
@@ -109,7 +106,7 @@ public class UserService {
 
         Long userId = userAuthorizationCheck(session);
 
-        Optional<User> optionalUserFoundById = userRepository.findByUserId(userId);
+        Optional<User> optionalUserFoundById = userRepository.findById(userId);
         User userFoundById = optionalUserFoundById.orElseThrow(
                 () -> new NotFoundException(UserErrorMessage.USER_NOT_FOUND)
         );
@@ -117,6 +114,7 @@ public class UserService {
         return UserInfoResponse.from(userFoundById);
     }
 
+    @Transactional
     public UserInfoModifyResponse modifyUserInfo(UserInfoModifyRequest userInfoModifyRequest, HttpSession session){
 
         Long userId = userAuthorizationCheck(session);
@@ -124,50 +122,50 @@ public class UserService {
         String newNickname = userInfoModifyRequest.getNickname();
         String newProfileImage = userInfoModifyRequest.getProfileImage();
 
-        if(userRepository.existsByNickname(newNickname)){   //닉네임 중복 체크
+        if(userRepository.existsByNicknameAndIsDeletedFalse(newNickname)){   //닉네임 중복 체크
             throw new ConflictException(UserErrorMessage.NICKNAME_ALREADY_EXISTS);
         }
 
-        Optional<User> optionalModifyTargetUser = userRepository.findByUserId(userId);
+        Optional<User> optionalModifyTargetUser = userRepository.findById(userId);
         User modifyTargetUser = optionalModifyTargetUser.orElseThrow(
                 () -> new NotFoundException(UserErrorMessage.USER_NOT_FOUND)
         );
 
         modifyTargetUser.changeNickname(newNickname);
-        modifyTargetUser.changeProfileImage(newProfileImage);
-
-        userRepository.modifyUserInfo(userId, modifyTargetUser);
+        modifyTargetUser.changeProfileImage(newProfileImage);   //더티체킹으로 update쿼리 자동 전송
 
         return UserInfoModifyResponse.from(modifyTargetUser);
     }
 
+    @Transactional
     public void modifyUserPassword(UserPasswordModifyRequest userPasswordModifyRequest, HttpSession session){
 
         Long userId = userAuthorizationCheck(session);
 
         String modifiedPassword = userPasswordModifyRequest.getPassword();
 
-        Optional<User> optionalPasswordModifyTargetUser = userRepository.findByUserId(userId);
+        Optional<User> optionalPasswordModifyTargetUser = userRepository.findById(userId);
         User passwordModifyTargetUser = optionalPasswordModifyTargetUser.orElseThrow(
                 () -> new NotFoundException(UserErrorMessage.USER_NOT_FOUND)
         );
-        passwordModifyTargetUser.changePassword(modifiedPassword);  //패스워드 검증은 유저 도메인 내에 존재해 따로 진행하지 않음
-
-        userRepository.modifyUserPassword(userId, passwordModifyTargetUser);
+        passwordModifyTargetUser.changePassword(modifiedPassword);  //패스워드 검증은 유저 도메인 내에 존재해 따로 진행하지 않음, 더티체킹으로 update 쿼리 전송
     }
 
-    public void deleteUser(HttpSession session){
+    @Transactional
+    public void deleteUser(UserDeleteRequest userDeleteRequest, HttpSession session){
 
         Long userId = userAuthorizationCheck(session);
 
-        Optional<User> optionalDeleteTargetUser = userRepository.findByUserId(userId);
+        Optional<User> optionalDeleteTargetUser = userRepository.findById(userId);
         User deleteTargetUser = optionalDeleteTargetUser.orElseThrow(
                 () -> new NotFoundException(UserErrorMessage.USER_NOT_FOUND)
         );
 
+        String deleteReason = userDeleteRequest.getDeleteReason();
+
         session.removeAttribute("LOGIN_USER_ID");
         session.removeAttribute("LOGIN_EXPIRES_AT");    //탈퇴 성공 시 로그인 정보 삭제
 
-        userRepository.deleteUser(userId, deleteTargetUser);
+        deleteTargetUser.deleteUser(deleteReason);
     }
 }

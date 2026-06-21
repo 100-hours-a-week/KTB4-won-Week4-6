@@ -1,9 +1,6 @@
 package com.example.KTB_assignment_week4.controller;
 
-import com.example.KTB_assignment_week4.dto.userDTO.Request.UserInfoModifyRequest;
-import com.example.KTB_assignment_week4.dto.userDTO.Request.UserLoginRequest;
-import com.example.KTB_assignment_week4.dto.userDTO.Request.UserPasswordModifyRequest;
-import com.example.KTB_assignment_week4.dto.userDTO.Request.UserSignupRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.Request.*;
 import com.example.KTB_assignment_week4.dto.userDTO.Response.UserInfoModifyResponse;
 import com.example.KTB_assignment_week4.dto.userDTO.Response.UserInfoResponse;
 import com.example.KTB_assignment_week4.dto.userDTO.Response.UserLoginResponse;
@@ -12,18 +9,17 @@ import com.example.KTB_assignment_week4.response.ApiResponse;
 import com.example.KTB_assignment_week4.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    public final UserService userService;
 
-    public UserController(UserService userService){
-        this.userService = userService;
-    }
+    public final UserService userService;
 
     @PostMapping("/login")  //로그인 메소드
     public ResponseEntity<ApiResponse<UserLoginResponse>> userLogin(
@@ -73,8 +69,10 @@ public class UserController {
     }
 
     @DeleteMapping("/info") //사용자 삭제 메소드
-    public ResponseEntity<Void> deleteUser(HttpSession session){
-        userService.deleteUser(session);
+    public ResponseEntity<Void> deleteUser(
+            UserDeleteRequest userDeleteRequest,
+            HttpSession session){
+        userService.deleteUser(userDeleteRequest, session);
 
         return ResponseEntity.noContent().build();
     }

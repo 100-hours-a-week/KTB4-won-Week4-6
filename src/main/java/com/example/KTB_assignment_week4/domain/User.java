@@ -2,21 +2,38 @@ package com.example.KTB_assignment_week4.domain;
 
 import com.example.KTB_assignment_week4.exception.userErrorMessage.UserErrorMessage;
 import com.example.KTB_assignment_week4.validation.PasswordValidator;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
+@Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "users")
 public class User {
+    @Id @GeneratedValue
     private Long userId;        //사용자 식별용 id값, UUID 사용
     private String nickname;    //닉네임
     private String email;       //로그인 아이디
     private String password;    //비밀번호(일단 평문으로 저장)
     private UserRole userRole;  //사용자 권한 구분(사용자, 어드민)
     private Boolean isDeleted;  //사용자 탈퇴 여부(소프트 delete)
+    private String deleteReason; //사용자 탈퇴 사유
     private String profileImage; //프로필 이미지
+
+    protected User(){}
+
+    public User(String nickname, String email, String password, UserRole userRole, String profileImage){
+        PasswordValidator.validate(password);
+        this.nickname = nickname;
+        this.email = email;
+        this.password = password;
+        this.userRole = userRole;
+        this.isDeleted = false;
+        this.deleteReason = "";
+        this.profileImage = profileImage;
+    }
 
     public void changeNickname(String nickname){
         validateNickname(nickname);
@@ -32,8 +49,9 @@ public class User {
         this.profileImage = profileImage;
     }
 
-    public void deleteUser(){
+    public void deleteUser(String deleteReason){
         this.isDeleted = true;
+        this.deleteReason = deleteReason;
     }
 
     public void validateNickname(String nickname){

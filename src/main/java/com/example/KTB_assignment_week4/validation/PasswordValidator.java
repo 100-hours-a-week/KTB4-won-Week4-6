@@ -1,5 +1,6 @@
 package com.example.KTB_assignment_week4.validation;
 
+import com.example.KTB_assignment_week4.exception.BadRequestException;
 import com.example.KTB_assignment_week4.exception.userErrorMessage.UserErrorMessage;
 
 public final class PasswordValidator {  //GPT 이용하여 비밀번호 검증 로직 구현
@@ -42,19 +43,19 @@ public final class PasswordValidator {  //GPT 이용하여 비밀번호 검증 �
         }
 
         if (!hasUpperCase) {
-            throw new IllegalArgumentException(UserErrorMessage.PASSWORD_MUST_CONTAIN_UPPERCASE);
+            throw new BadRequestException(UserErrorMessage.PASSWORD_MUST_CONTAIN_UPPERCASE);
         }
 
         if (!hasLowerCase) {
-            throw new IllegalArgumentException(UserErrorMessage.PASSWORD_MUST_CONTAIN_LOWERCASE);
+            throw new BadRequestException(UserErrorMessage.PASSWORD_MUST_CONTAIN_LOWERCASE);
         }
 
         if (!hasDigit) {
-            throw new IllegalArgumentException(UserErrorMessage.PASSWORD_MUST_CONTAIN_NUMBER);
+            throw new BadRequestException(UserErrorMessage.PASSWORD_MUST_CONTAIN_NUMBER);
         }
 
         if (!hasSpecialChar) {
-            throw new IllegalArgumentException(UserErrorMessage.PASSWORD_MUST_CONTAIN_SPECIAL_LETTER);
+            throw new BadRequestException(UserErrorMessage.PASSWORD_MUST_CONTAIN_SPECIAL_LETTER);
         }
     }
 
