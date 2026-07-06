@@ -49,7 +49,6 @@ public class User {
     protected User(){}
 
     public User(String nickname, String email, String password, UserRole userRole, String profileImage){
-        PasswordValidator.validate(password);
         this.nickname = nickname;
         this.email = email;
         this.password = password;

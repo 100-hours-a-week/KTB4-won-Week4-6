@@ -8,6 +8,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -43,7 +45,7 @@ public class SecurityConfig {
 
             String path = request.getServletPath(); //요청 URL
 
-            return path.equals("/auth/refresh") || path.equals("/auth/logout"); //Access Token리프레쉬 또는 로그아웃 시에만 CSRF검사
+            return path.equals("/auth/refresh") || path.equals("/auth/logout") || path.equals("/auth/refresh"); //Access Token리프레쉬, 회원가입 또는 로그아웃 시에만 CSRF검사
         };
 
 
@@ -89,6 +91,11 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);                         //모든 경로에 대해 정의한 CORS 정책 적용
 
         return source;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
+        return configuration.getAuthenticationManager();
     }
 
     @Bean

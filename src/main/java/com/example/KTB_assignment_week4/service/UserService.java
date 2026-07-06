@@ -1,20 +1,17 @@
 package com.example.KTB_assignment_week4.service;
 
 import com.example.KTB_assignment_week4.domain.user.User;
-import com.example.KTB_assignment_week4.domain.user.UserRole;
-import com.example.KTB_assignment_week4.dto.userDTO.Request.*;
-import com.example.KTB_assignment_week4.dto.userDTO.Response.UserInfoModifyResponse;
-import com.example.KTB_assignment_week4.dto.userDTO.Response.UserInfoResponse;
-import com.example.KTB_assignment_week4.dto.userDTO.Response.UserLoginResponse;
-import com.example.KTB_assignment_week4.dto.userDTO.Response.UserSignupResponse;
-import com.example.KTB_assignment_week4.exception.BadRequestException;
+import com.example.KTB_assignment_week4.dto.userDTO.request.UserDeleteRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.request.UserInfoModifyRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.request.UserPasswordModifyRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.response.UserInfoModifyResponse;
+import com.example.KTB_assignment_week4.dto.userDTO.response.UserInfoResponse;
 import com.example.KTB_assignment_week4.exception.ConflictException;
 import com.example.KTB_assignment_week4.exception.NotFoundException;
 import com.example.KTB_assignment_week4.exception.UnauthorizedException;
 import com.example.KTB_assignment_week4.exception.userErrorMessage.UserErrorMessage;
 import com.example.KTB_assignment_week4.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,61 +25,35 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-
-    public UserLoginResponse login(@Valid UserLoginRequest userLoginRequest, HttpSession session){
-        String email = userLoginRequest.getEmail();
-        String password = userLoginRequest.getPassword();
-
-        if((password.length() < 8) || (password.length() > 20)){
-            throw new BadRequestException(UserErrorMessage.PASSWORD_LENGTH_LIMIT);
-        }
-
-        Optional<User> optionalUserFoundByEmail = userRepository.findByEmailAndIsDeletedFalse(email);
-        User userFoundByEmail = optionalUserFoundByEmail.orElseThrow(
-                () -> new NotFoundException(UserErrorMessage.USER_NOT_FOUND));
-        String passwordOfFoundUser = userFoundByEmail.getPassword();
-        if(!passwordOfFoundUser.equals(password)){
-            throw new UnauthorizedException(UserErrorMessage.EMAIL_AND_PASSWORD_INCORRECT);
-        }
-        if(userFoundByEmail.getIsDeleted() == true){
-            throw new UnauthorizedException(UserErrorMessage.USER_NOT_FOUND);
-        }
-
-        session.setAttribute("LOGIN_USER_ID", userFoundByEmail.getId());    //현재 로그인한 유저의 ID저장
-        session.setAttribute("LOGIN_EXPIRES_AT", LocalDateTime.now().plusMinutes(30).toString()); //해당 로그인 유저의 ID를 30분동안 유효하도록 설정
-
-        return UserLoginResponse.from(userFoundByEmail);
-    }
-
-    public void checkEmailDuplication(String email){        //이메일 중복체크 => 중복 시 예외처리
-        if(userRepository.existsByEmailAndIsDeletedFalse(email)){
-            throw new ConflictException(UserErrorMessage.EMAIL_ALREADY_EXISTS);
-        };
-    }
-
-    public void checkNicknameDuplication(String nickname){  //닉네임 중복체크 => 중복 시 예외처리
-        if(userRepository.existsByNicknameAndIsDeletedFalse(nickname)){
-            throw new ConflictException(UserErrorMessage.NICKNAME_ALREADY_EXISTS);
-        }
-    }
-
-    @Transactional
-    public UserSignupResponse signup(@Valid UserSignupRequest userSignupRequest){
-        String email = userSignupRequest.getEmail();
-        String password = userSignupRequest.getPassword();
-        String nickname = userSignupRequest.getNickname();
-        String profileImage = userSignupRequest.getProfileImage();
-
-        checkEmailDuplication(email);
-        checkNicknameDuplication(nickname);  //이메일과 닉네임 중복 체크 후 중복된다면 예외 발생
+//
+//    public UserLoginResponse login(@Valid LoginRequest loginRequest, HttpSession session){
+//        String email = loginRequest.getEmail();
+//        String password = loginRequest.getPassword();
+//
+//        if((password.length() < 8) || (password.length() > 20)){
+//            throw new BadRequestException(UserErrorMessage.PASSWORD_LENGTH_LIMIT);
+//        }
+//
+//        Optional<User> optionalUserFoundByEmail = userRepository.findByEmailAndIsDeletedFalse(email);
+//        User userFoundByEmail = optionalUserFoundByEmail.orElseThrow(
+//                () -> new NotFoundException(UserErrorMessage.USER_NOT_FOUND));
+//        String passwordOfFoundUser = userFoundByEmail.getPassword();
+//        if(!passwordOfFoundUser.equals(password)){
+//            throw new UnauthorizedException(UserErrorMessage.EMAIL_AND_PASSWORD_INCORRECT);
+//        }
+//        if(userFoundByEmail.getIsDeleted() == true){
+//            throw new UnauthorizedException(UserErrorMessage.USER_NOT_FOUND);
+//        }
+//
+//        //session.setAttribute("LOGIN_USER_ID", userFoundByEmail.getId());    //현재 로그인한 유저의 ID저장
+//        //session.setAttribute("LOGIN_EXPIRES_AT", LocalDateTime.now().plusMinutes(30).toString()); //해당 로그인 유저의 ID를 30분동안 유효하도록 설정
+//
+//        return UserLoginResponse.from(userFoundByEmail);
+//    }
 
 
-        User user = new User(nickname, email, password, UserRole.USER, profileImage);
 
-        userRepository.save(user);
 
-        return UserSignupResponse.from(user);
-    }
 
     public Long userAuthorizationCheck(HttpSession session){  //sessionStorage에서 가져온 userId값 검증
         Long userId = (Long) session.getAttribute("LOGIN_USER_ID");

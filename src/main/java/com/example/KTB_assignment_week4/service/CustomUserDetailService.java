@@ -22,8 +22,8 @@ public class CustomUserDetailService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmailAndIsDeletedFalse(username)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new NotFoundException(UserErrorMessage.USER_NOT_FOUND));
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();

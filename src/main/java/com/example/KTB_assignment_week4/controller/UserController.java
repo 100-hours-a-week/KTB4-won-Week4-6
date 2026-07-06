@@ -1,16 +1,15 @@
 package com.example.KTB_assignment_week4.controller;
 
-import com.example.KTB_assignment_week4.dto.userDTO.Request.*;
-import com.example.KTB_assignment_week4.dto.userDTO.Response.UserInfoModifyResponse;
-import com.example.KTB_assignment_week4.dto.userDTO.Response.UserInfoResponse;
-import com.example.KTB_assignment_week4.dto.userDTO.Response.UserLoginResponse;
-import com.example.KTB_assignment_week4.dto.userDTO.Response.UserSignupResponse;
+import com.example.KTB_assignment_week4.dto.userDTO.request.UserDeleteRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.request.UserInfoModifyRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.request.UserPasswordModifyRequest;
+import com.example.KTB_assignment_week4.dto.userDTO.response.UserInfoModifyResponse;
+import com.example.KTB_assignment_week4.dto.userDTO.response.UserInfoResponse;
 import com.example.KTB_assignment_week4.response.ApiResponse;
 import com.example.KTB_assignment_week4.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,24 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     public final UserService userService;
-
-    @PostMapping("/login")  //로그인 메소드
-    public ResponseEntity<ApiResponse<UserLoginResponse>> userLogin(
-            @Valid @RequestBody UserLoginRequest userLoginRequest,
-            HttpSession session){
-        UserLoginResponse response = userService.login(userLoginRequest, session);
-
-        return ResponseEntity.ok(
-                ApiResponse.of("USER_LOGIN", response)
-                );
-    }
-
-    @PostMapping("/signup") //회원가입 메소드
-    public ResponseEntity<ApiResponse<UserSignupResponse>> userSignup(@Valid @RequestBody UserSignupRequest userSignupRequest){
-        UserSignupResponse response = userService.signup(userSignupRequest);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.of("USER_SIGNUP", response));
-    }
 
     @GetMapping("/info")    //사용자 정보 수정 페이지 진입 메소드
     public ResponseEntity<ApiResponse<UserInfoResponse>> getUserInfo(HttpSession session){
