@@ -36,8 +36,12 @@ public class JwtFilter extends OncePerRequestFilter {
                             "JWT에 권한 정보가 없습니다."
                     );
                 }
+
+                CustomUserPrincipal customUserPrincipal = jwtTokenProvider.getCustomUserPrincipal(token);   //customUserPrincipal을 제작하고 이를 Authentication 객체에 넣어
+                                                                                                            //추후 컨트롤러에서 @AuthenticationPrincipal을 이용하여 사용자 정보를 사용 가능하다.
+
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userId, null,
+                        new UsernamePasswordAuthenticationToken(customUserPrincipal, null,
                                 List.of(
                                         new SimpleGrantedAuthority(authority)
                                 )

@@ -16,7 +16,10 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
     private static final String TOKEN_TYPE_CLAIM = "token_type";
+    private static final String EMAIL_CLAIM = "email";
+    private static final String NICKNAME_CLAIM = "nickname";
     private static final String AUTHORITY_CLAIM = "authority";
+    private static final String PROFILE_IMAGE_CLAIM = "profile_image";
 
     // JWT 서명 생성 및 검증에 사용하는 비밀키
     private final SecretKey signingKey;
@@ -52,7 +55,7 @@ public class JwtTokenProvider {
                 .build();
     }
 
-    public String createAccessToken(Long userId, String authority) {
+    public String createAccessToken(Long userId, String email, String nickname, String profileImage, String authority) {
         // 토큰 발급 시간
         Instant issuedAt = Instant.now();
 
@@ -64,6 +67,15 @@ public class JwtTokenProvider {
 
                 //userId를 sub로 설정
                 .subject(userId.toString())
+
+                //email
+                .claim(EMAIL_CLAIM, email)
+
+                //nickname
+                .claim(NICKNAME_CLAIM, nickname)
+
+                //profileImage
+                .claim(PROFILE_IMAGE_CLAIM, profileImage)
 
                 // 이 토큰이 Access Token임을 표시
                 .claim(TOKEN_TYPE_CLAIM, TokenType.ACCESS.getValue())
@@ -128,6 +140,25 @@ public class JwtTokenProvider {
                 token,
                 TokenType.REFRESH
         );
+    }
+
+    public CustomUserPrincipal getCustomUserPrincipal(String token){
+        Claims claims = parseClaims(token);
+
+        Long userId = Long.valueOf(claims.getSubject());
+        String email = String.valueOf(claims.get("email", String.class));
+        String nickname = String.valueOf(claims.get("nickname", String.class));
+        String authority = String.valueOf(claims.get("authority", String.class));
+        String profileImage = String.valueOf(claims.get("profile_image", String.class));
+        return new CustomUserPrincipal(userId, email, nickname, authority, profileImage);
+    }
+
+    public Claims parseClaims(String token){
+        return Jwts.parser()
+                .verifyWith(signingKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     public Long getUserId(Claims claims) {

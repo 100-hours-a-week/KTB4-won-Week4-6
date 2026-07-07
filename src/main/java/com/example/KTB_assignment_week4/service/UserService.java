@@ -1,5 +1,6 @@
 package com.example.KTB_assignment_week4.service;
 
+import com.example.KTB_assignment_week4.configuration.jwt.CustomUserPrincipal;
 import com.example.KTB_assignment_week4.domain.user.User;
 import com.example.KTB_assignment_week4.dto.userDTO.request.UserDeleteRequest;
 import com.example.KTB_assignment_week4.dto.userDTO.request.UserInfoModifyRequest;
@@ -8,15 +9,12 @@ import com.example.KTB_assignment_week4.dto.userDTO.response.UserInfoModifyRespo
 import com.example.KTB_assignment_week4.dto.userDTO.response.UserInfoResponse;
 import com.example.KTB_assignment_week4.exception.ConflictException;
 import com.example.KTB_assignment_week4.exception.NotFoundException;
-import com.example.KTB_assignment_week4.exception.UnauthorizedException;
 import com.example.KTB_assignment_week4.exception.userErrorMessage.UserErrorMessage;
 import com.example.KTB_assignment_week4.repository.UserRepository;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -25,57 +23,9 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-//
-//    public UserLoginResponse login(@Valid LoginRequest loginRequest, HttpSession session){
-//        String email = loginRequest.getEmail();
-//        String password = loginRequest.getPassword();
-//
-//        if((password.length() < 8) || (password.length() > 20)){
-//            throw new BadRequestException(UserErrorMessage.PASSWORD_LENGTH_LIMIT);
-//        }
-//
-//        Optional<User> optionalUserFoundByEmail = userRepository.findByEmailAndIsDeletedFalse(email);
-//        User userFoundByEmail = optionalUserFoundByEmail.orElseThrow(
-//                () -> new NotFoundException(UserErrorMessage.USER_NOT_FOUND));
-//        String passwordOfFoundUser = userFoundByEmail.getPassword();
-//        if(!passwordOfFoundUser.equals(password)){
-//            throw new UnauthorizedException(UserErrorMessage.EMAIL_AND_PASSWORD_INCORRECT);
-//        }
-//        if(userFoundByEmail.getIsDeleted() == true){
-//            throw new UnauthorizedException(UserErrorMessage.USER_NOT_FOUND);
-//        }
-//
-//        //session.setAttribute("LOGIN_USER_ID", userFoundByEmail.getId());    //현재 로그인한 유저의 ID저장
-//        //session.setAttribute("LOGIN_EXPIRES_AT", LocalDateTime.now().plusMinutes(30).toString()); //해당 로그인 유저의 ID를 30분동안 유효하도록 설정
-//
-//        return UserLoginResponse.from(userFoundByEmail);
-//    }
 
-
-
-
-
-    public Long userAuthorizationCheck(HttpSession session){  //sessionStorage에서 가져온 userId값 검증
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
-        if(userId == null){     //로그인 정보 없을 시 예외처리
-            throw new UnauthorizedException(UserErrorMessage.USER_UNAUTHORIZED);
-        }
-
-        String loginExpiresAtAsString = (String) session.getAttribute("LOGIN_EXPIRES_AT");
-        LocalDateTime loginExpiresAt = LocalDateTime.parse(loginExpiresAtAsString);
-
-        if(loginExpiresAt.isBefore(LocalDateTime.now())){   //로그인 정보 만료 시 예외처리 및 로그인 정보 삭제
-            session.removeAttribute("LOGIN_USER_ID");
-            session.removeAttribute("LOGIN_EXPIRES_AT");
-            throw new UnauthorizedException(UserErrorMessage.USER_UNAUTHORIZED);
-        }
-
-        return userId;
-    }
-
-    public UserInfoResponse getUserInfo(HttpSession session){
-
-        Long userId = userAuthorizationCheck(session);
+    public UserInfoResponse getUserInfo(CustomUserPrincipal principal){
+        Long userId = principal.getUserId();
 
         Optional<User> optionalUserFoundById = userRepository.findById(userId);
         User userFoundById = optionalUserFoundById.orElseThrow(
@@ -86,9 +36,9 @@ public class UserService {
     }
 
     @Transactional
-    public UserInfoModifyResponse modifyUserInfo(UserInfoModifyRequest userInfoModifyRequest, HttpSession session){
+    public UserInfoModifyResponse modifyUserInfo(UserInfoModifyRequest userInfoModifyRequest, CustomUserPrincipal principal){
 
-        Long userId = userAuthorizationCheck(session);
+        Long userId = principal.getUserId();
 
         String newNickname = userInfoModifyRequest.getNickname();
         String newProfileImage = userInfoModifyRequest.getProfileImage();
@@ -109,9 +59,9 @@ public class UserService {
     }
 
     @Transactional
-    public void modifyUserPassword(UserPasswordModifyRequest userPasswordModifyRequest, HttpSession session){
+    public void modifyUserPassword(UserPasswordModifyRequest userPasswordModifyRequest, CustomUserPrincipal principal){
 
-        Long userId = userAuthorizationCheck(session);
+        Long userId = principal.getUserId();
 
         String modifiedPassword = userPasswordModifyRequest.getPassword();
 
@@ -123,9 +73,9 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(UserDeleteRequest userDeleteRequest, HttpSession session){
+    public void deleteUser(UserDeleteRequest userDeleteRequest, CustomUserPrincipal principal){
 
-        Long userId = userAuthorizationCheck(session);
+        Long userId = principal.getUserId();
 
         Optional<User> optionalDeleteTargetUser = userRepository.findById(userId);
         User deleteTargetUser = optionalDeleteTargetUser.orElseThrow(
@@ -134,8 +84,9 @@ public class UserService {
 
         String deleteReason = userDeleteRequest.getDeleteReason();
 
-        session.removeAttribute("LOGIN_USER_ID");
-        session.removeAttribute("LOGIN_EXPIRES_AT");    //탈퇴 성공 시 로그인 정보 삭제
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //AccessToken, RefreshToken 삭제해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!AccessToken, RefreshToken 삭제해야함
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         deleteTargetUser.deleteUser(deleteReason);
     }

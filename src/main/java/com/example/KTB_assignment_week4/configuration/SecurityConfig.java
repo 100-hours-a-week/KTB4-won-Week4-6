@@ -45,7 +45,7 @@ public class SecurityConfig {
 
             String path = request.getServletPath(); //요청 URL
 
-            return path.equals("/auth/refresh") || path.equals("/auth/logout") || path.equals("/auth/refresh"); //Access Token리프레쉬, 회원가입 또는 로그아웃 시에만 CSRF검사
+            return path.equals("/auth/refresh") || path.equals("/auth/logout"); //Access Token리프레쉬, 회원가입 또는 로그아웃 시에만 CSRF검사
         };
 
 
@@ -69,8 +69,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/error").permitAll()  //인증 관련 경로는 인증 불필요
-                        .requestMatchers("/admin/**").hasRole("ADMIN")        //추후 생길 ADMIN관련 경로는 ADMIN(ROLE_ADMIN)권한 필요
-                        .anyRequest().authenticated()                           //나머지는 인증이 필ㅓ
+                        .requestMatchers("/admin/**").hasRole("ADMIN")        //추후 생길 ADMIN관련 경ㅛ는 ADMIN(ROLE_ADMIN)권한 필요
+                        .anyRequest().authenticated()                           //나머지는 인증이 필ㅇ
                 )
 
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

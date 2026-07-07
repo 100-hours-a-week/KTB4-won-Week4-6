@@ -44,7 +44,12 @@ public class AuthService {
 
         String authority = "ROLE_" + userFindByEmail.getUserRole().name();  //ROLE_ 형태로 맞추기 위해 문자열 추가
 
-        String accessToken = jwtTokenProvider.createAccessToken(userFindByEmail.getId(), authority);
+        String accessToken = jwtTokenProvider.createAccessToken(
+                userFindByEmail.getId(),
+                userFindByEmail.getEmail(),
+                userFindByEmail.getNickname(),
+                userFindByEmail.getProfileImage(),
+                authority);
         String refreshToken = jwtTokenProvider.createRefreshToken(userFindByEmail.getId());             //AccessToken과 RefreshToken 생성
 
         return new TokenResult(accessToken, refreshToken);
