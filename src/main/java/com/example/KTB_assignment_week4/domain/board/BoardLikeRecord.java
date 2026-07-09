@@ -15,11 +15,9 @@ import lombok.Getter;
         }
 )
 public class BoardLikeRecord {
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "board_like_record_id")
     private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User likedUser;

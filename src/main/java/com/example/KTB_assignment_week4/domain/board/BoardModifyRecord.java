@@ -9,8 +9,7 @@ import java.util.List;
 @Entity
 @Getter
 public class BoardModifyRecord {
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "board_modify_record_id")
     private Long id;
     private String title;

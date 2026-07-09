@@ -6,7 +6,7 @@ import lombok.Getter;
 @Entity
 @Getter
 public class BoardImage {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "board_image_id")
     private Long id;
     private String imageUrl;

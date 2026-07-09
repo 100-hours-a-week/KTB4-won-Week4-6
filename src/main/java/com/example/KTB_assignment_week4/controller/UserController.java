@@ -1,7 +1,6 @@
 package com.example.KTB_assignment_week4.controller;
 
 import com.example.KTB_assignment_week4.configuration.jwt.CustomUserPrincipal;
-import com.example.KTB_assignment_week4.dto.userDTO.request.UserDeleteRequest;
 import com.example.KTB_assignment_week4.dto.userDTO.request.UserInfoModifyRequest;
 import com.example.KTB_assignment_week4.dto.userDTO.request.UserPasswordModifyRequest;
 import com.example.KTB_assignment_week4.dto.userDTO.response.UserInfoModifyResponse;
@@ -46,15 +45,6 @@ public class UserController {
             @Valid @RequestBody UserPasswordModifyRequest userPasswordModifyRequest,
             @AuthenticationPrincipal CustomUserPrincipal principal){
         userService.modifyUserPassword(userPasswordModifyRequest, principal);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/info") //사용자 삭제 메소드
-    public ResponseEntity<Void> deleteUser(
-            UserDeleteRequest userDeleteRequest,
-            @AuthenticationPrincipal CustomUserPrincipal principal){
-        userService.deleteUser(userDeleteRequest, principal);
 
         return ResponseEntity.noContent().build();
     }

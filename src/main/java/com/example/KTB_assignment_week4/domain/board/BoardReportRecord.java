@@ -16,8 +16,7 @@ import lombok.Getter;
 
 )
 public class BoardReportRecord {
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "board_report_record_id")
     private Long id;
 

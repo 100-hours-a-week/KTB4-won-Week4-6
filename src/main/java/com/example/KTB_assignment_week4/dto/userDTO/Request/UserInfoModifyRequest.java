@@ -1,6 +1,6 @@
 package com.example.KTB_assignment_week4.dto.userDTO.request;
 
-import com.example.KTB_assignment_week4.exception.userErrorMessage.UserErrorMessage;
+import com.example.KTB_assignment_week4.exception.errorMessage.UserErrorMessage;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;

@@ -2,7 +2,7 @@ package com.example.KTB_assignment_week4.service;
 
 import com.example.KTB_assignment_week4.domain.user.User;
 import com.example.KTB_assignment_week4.exception.NotFoundException;
-import com.example.KTB_assignment_week4.exception.userErrorMessage.UserErrorMessage;
+import com.example.KTB_assignment_week4.exception.errorMessage.UserErrorMessage;
 import com.example.KTB_assignment_week4.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

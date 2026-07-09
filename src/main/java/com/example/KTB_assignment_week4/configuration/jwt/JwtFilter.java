@@ -28,7 +28,6 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 Claims claims = jwtTokenProvider.validateAccessToken(token);
-                Long userId = jwtTokenProvider.getUserId(claims);
                 String authority = jwtTokenProvider.getAuthority(claims);
 
                 if (!StringUtils.hasText(authority)) {

@@ -15,8 +15,7 @@ import lombok.Getter;
         }
 )
 public class BoardViewRecord {
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "board_view_record_id")
     private Long id;
 

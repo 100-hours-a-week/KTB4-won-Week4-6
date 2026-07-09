@@ -2,16 +2,18 @@ package com.example.KTB_assignment_week4.service;
 
 import com.example.KTB_assignment_week4.configuration.jwt.CustomUserPrincipal;
 import com.example.KTB_assignment_week4.domain.user.User;
-import com.example.KTB_assignment_week4.dto.userDTO.request.UserDeleteRequest;
 import com.example.KTB_assignment_week4.dto.userDTO.request.UserInfoModifyRequest;
 import com.example.KTB_assignment_week4.dto.userDTO.request.UserPasswordModifyRequest;
 import com.example.KTB_assignment_week4.dto.userDTO.response.UserInfoModifyResponse;
 import com.example.KTB_assignment_week4.dto.userDTO.response.UserInfoResponse;
+import com.example.KTB_assignment_week4.exception.BadRequestException;
 import com.example.KTB_assignment_week4.exception.ConflictException;
 import com.example.KTB_assignment_week4.exception.NotFoundException;
-import com.example.KTB_assignment_week4.exception.userErrorMessage.UserErrorMessage;
+import com.example.KTB_assignment_week4.exception.errorMessage.AuthErrorMessage;
+import com.example.KTB_assignment_week4.exception.errorMessage.UserErrorMessage;
 import com.example.KTB_assignment_week4.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserInfoResponse getUserInfo(CustomUserPrincipal principal){
         Long userId = principal.getUserId();
@@ -63,31 +66,23 @@ public class UserService {
 
         Long userId = principal.getUserId();
 
-        String modifiedPassword = userPasswordModifyRequest.getPassword();
+        User userFindById = userRepository.findByIdAndIsDeletedFalse(userId)
+                .orElseThrow(() -> new NotFoundException(UserErrorMessage.USER_NOT_FOUND));
 
-        Optional<User> optionalPasswordModifyTargetUser = userRepository.findById(userId);
-        User passwordModifyTargetUser = optionalPasswordModifyTargetUser.orElseThrow(
-                () -> new NotFoundException(UserErrorMessage.USER_NOT_FOUND)
-        );
-        passwordModifyTargetUser.changePassword(modifiedPassword);  //패스워드 검증은 유저 도메인 내에 존재해 따로 진행하지 않음, 더티체킹으로 update 쿼리 전송
-    }
+        String originalPassword = userPasswordModifyRequest.getOriginalPassword();
+        String changePassword = userPasswordModifyRequest.getChangedPassword();
 
-    @Transactional
-    public void deleteUser(UserDeleteRequest userDeleteRequest, CustomUserPrincipal principal){
+        String encodedOriginalPassword = passwordEncoder.encode(originalPassword);
+        String encodedChangePassword = passwordEncoder.encode(changePassword);
 
-        Long userId = principal.getUserId();
+        if(!encodedOriginalPassword.equals(userFindById.getPassword())){
+            throw new BadRequestException(AuthErrorMessage.PASSWORD_INCORRECT);     //비밀번호 변경 시 비밀번호 일치 여부 확인 로직 추가
+        }
 
-        Optional<User> optionalDeleteTargetUser = userRepository.findById(userId);
-        User deleteTargetUser = optionalDeleteTargetUser.orElseThrow(
-                () -> new NotFoundException(UserErrorMessage.USER_NOT_FOUND)
-        );
+        if(encodedChangePassword.equals(userFindById.getPassword())){
+            throw new BadRequestException(AuthErrorMessage.PASSWORD_ALREADY_USED);  //현재 비밀번호로 변경 시도 시 에러 발생
+        }
 
-        String deleteReason = userDeleteRequest.getDeleteReason();
-
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //AccessToken, RefreshToken 삭제해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!AccessToken, RefreshToken 삭제해야함
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        deleteTargetUser.deleteUser(deleteReason);
+        userFindById.changePassword(changePassword);  //패스워드 검증은 유저 도메인 내에 존재해 따로 진행하지 않음, 더티체킹으로 update 쿼리 전송
     }
 }

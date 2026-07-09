@@ -71,12 +71,6 @@ public class JwtTokenProvider {
                 //email
                 .claim(EMAIL_CLAIM, email)
 
-                //nickname
-                .claim(NICKNAME_CLAIM, nickname)
-
-                //profileImage
-                .claim(PROFILE_IMAGE_CLAIM, profileImage)
-
                 // 이 토큰이 Access Token임을 표시
                 .claim(TOKEN_TYPE_CLAIM, TokenType.ACCESS.getValue())
 
@@ -147,10 +141,8 @@ public class JwtTokenProvider {
 
         Long userId = Long.valueOf(claims.getSubject());
         String email = String.valueOf(claims.get("email", String.class));
-        String nickname = String.valueOf(claims.get("nickname", String.class));
         String authority = String.valueOf(claims.get("authority", String.class));
-        String profileImage = String.valueOf(claims.get("profile_image", String.class));
-        return new CustomUserPrincipal(userId, email, nickname, authority, profileImage);
+        return new CustomUserPrincipal(userId, email, authority);
     }
 
     public Claims parseClaims(String token){

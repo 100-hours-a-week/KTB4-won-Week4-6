@@ -8,8 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 public class CommentModifyRecord {
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_modify_record_id")
     private Long id;
     private String content;

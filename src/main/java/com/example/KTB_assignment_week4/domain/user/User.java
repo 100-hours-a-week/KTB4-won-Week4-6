@@ -6,7 +6,7 @@ import com.example.KTB_assignment_week4.domain.board.BoardReportRecord;
 import com.example.KTB_assignment_week4.domain.board.BoardViewRecord;
 import com.example.KTB_assignment_week4.domain.comment.CommentLikeRecord;
 import com.example.KTB_assignment_week4.domain.comment.CommentReportRecord;
-import com.example.KTB_assignment_week4.exception.userErrorMessage.UserErrorMessage;
+import com.example.KTB_assignment_week4.exception.errorMessage.UserErrorMessage;
 import com.example.KTB_assignment_week4.validation.PasswordValidator;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -18,12 +18,13 @@ import java.util.List;
 @Getter
 @Table(name = "users")  //h2예약어 피하기 위해 적용
 public class User {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;        //사용자 식별용 id값, UUID 사용
     private String nickname;    //닉네임
     private String email;       //로그인 아이디
     private String password;    //비밀번호(일단 평문으로 저장)
+    @Enumerated(EnumType.STRING)
     private UserRole userRole;  //사용자 권한 구분(사용자, 어드민)
     private Boolean isDeleted;  //사용자 탈퇴 여부(소프트 delete)
     private String deleteReason; //사용자 탈퇴 사유

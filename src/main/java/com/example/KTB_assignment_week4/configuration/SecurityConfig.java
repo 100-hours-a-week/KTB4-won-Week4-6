@@ -3,8 +3,11 @@ package com.example.KTB_assignment_week4.configuration;
 import com.example.KTB_assignment_week4.configuration.jwt.JwtFilter;
 import com.example.KTB_assignment_week4.configuration.jwt.JwtProperties;
 import com.example.KTB_assignment_week4.configuration.jwt.JwtTokenProvider;
+import com.example.KTB_assignment_week4.exception.handler.CustomAccessDeniedHandler;
+import com.example.KTB_assignment_week4.exception.handler.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -34,7 +37,9 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+                                                   CustomAccessDeniedHandler customAccessDeniedHandler) throws Exception{
 
         JwtFilter jwtFilter = new JwtFilter(jwtTokenProvider);
 
@@ -69,9 +74,15 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/error").permitAll()  //인증 관련 경로는 인증 불필요
-                        .requestMatchers("/admin/**").hasRole("ADMIN")        //추후 생길 ADMIN관련 경ㅛ는 ADMIN(ROLE_ADMIN)권한 필요
+                        .requestMatchers(PathRequest.toH2Console()).permitAll() //h2 관련 경로 인증 불필요
+                        .requestMatchers("/admin/**").hasRole("ADMIN")        //추후 생길 ADMIN관련 경로는 ADMIN(ROLE_ADMIN)권한 필요
                         .anyRequest().authenticated()                           //나머지는 인증이 필ㅇ
                 )
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))      //h2 콘솔 설정
+
+                .exceptionHandling(exception -> exception       //JWT 인증/인가 예외처리 완료
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler))
 
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -15,7 +15,8 @@ import lombok.Getter;
         }
 )
 public class CommentLikeRecord {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     @Column(name = "comment_like_record_id")
     private Long id;
 

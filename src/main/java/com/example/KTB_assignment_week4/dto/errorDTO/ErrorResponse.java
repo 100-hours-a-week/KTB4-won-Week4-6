@@ -8,12 +8,16 @@ public class ErrorResponse {
     private final String code;
     private final Object data;
 
-    private ErrorResponse(String code){
+    private ErrorResponse(String code, Object data){
         this.code = code;
-        this.data = null;
+        this.data = data;
     }
 
     public static ErrorResponse of(String code){
-        return new ErrorResponse(code);
+        return new ErrorResponse(code, null);
+    }
+
+    public static ErrorResponse of(String code, Object data){
+        return new ErrorResponse(code, data);
     }
 }
