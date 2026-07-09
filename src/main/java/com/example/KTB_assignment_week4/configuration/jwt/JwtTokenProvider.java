@@ -55,7 +55,7 @@ public class JwtTokenProvider {
                 .build();
     }
 
-    public String createAccessToken(Long userId, String email, String nickname, String profileImage, String authority) {
+    public String createAccessToken(Long userId, String email, String authority) {
         // 토큰 발급 시간
         Instant issuedAt = Instant.now();
 

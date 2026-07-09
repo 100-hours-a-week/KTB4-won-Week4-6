@@ -3,7 +3,7 @@ package com.example.KTB_assignment_week4.validation;
 import com.example.KTB_assignment_week4.exception.BadRequestException;
 import com.example.KTB_assignment_week4.exception.errorMessage.AuthErrorMessage;
 
-public final class PasswordValidator {  //GPT 이용하여 비밀번호 검증 로직 구현
+public final class PasswordValidator {  //비즈니스 요구사항에 따른 비밀번호 검증
 
     private static final int MIN_LENGTH = 8;
     private static final int MAX_LENGTH = 20;

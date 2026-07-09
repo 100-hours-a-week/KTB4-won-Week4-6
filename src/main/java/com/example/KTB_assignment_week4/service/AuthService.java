@@ -52,8 +52,6 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(
                 userFindByEmail.getId(),
                 userFindByEmail.getEmail(),
-                userFindByEmail.getNickname(),
-                userFindByEmail.getProfileImage(),
                 authority);
         String refreshToken = jwtTokenProvider.createRefreshToken(userFindByEmail.getId());             //AccessToken과 RefreshToken 생성
 
@@ -100,8 +98,6 @@ public class AuthService {
         return jwtTokenProvider.createAccessToken(
                 userId,
                 user.getEmail(),
-                user.getNickname(),
-                user.getProfileImage(),
                 authority);
     }
 
